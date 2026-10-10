@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Expense Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% load static %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+        body { 
+            background-color: #1a1a1a; 
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 1400px;
+            background-image: url("{% static 'img/clean_bg.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            display: flex;
+            min-height: 90vh;
+            overflow: hidden;
+            border: 5px solid #0d3b1f;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: rgba(13, 59, 31, 0.95);
+            color: #f4f1e1;
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #b5a87f;
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            margin-bottom: 40px;
+            color: #d4af37;
+        }
+
+        .sidebar a {
+            color: #c9be9a;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: block;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .sidebar .logout {
+            margin-top: auto;
+            color: #ff6b6b;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            background-color: rgba(244, 241, 225, 0.95);
+            overflow-y: auto;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px dashed #b5a87f;
+            padding-bottom: 15px;
+        }
+
+        .header-section h1 {
+            font-family: 'Playfair Display', serif;
+            color: #0d3b1f;
+            margin: 0;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid #b5a87f;
+            background: #fff;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            outline: none;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::after {
+            content: '\f156';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: -10px;
+            bottom: -20px;
+            font-size: 80px;
+            color: rgba(0,0,0,0.03);
+        }
+
+        .card-balance { border-color: #0d3b1f; }
+        .card-income { border-color: #2e7d32; }
+        .card-expense { border-color: #c62828; }
+
+        .card-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-amount {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        
+        .card-balance .card-amount { color: #0d3b1f; }
+        .card-income .card-amount { color: #2e7d32; }
+        .card-expense .card-amount { color: #c62828; }
+
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            color: #0d3b1f;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Table Section */
+        .table-container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        tr:hover td {
+            background-color: #fbfbfb;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-income { background-color: #e8f5e9; color: #2e7d32; }
+        .badge-expense { background-color: #ffebee; color: #c62828; }
+        
+        .btn-action {
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            color: #555;
+            transition: all 0.2s;
+        }
+        .btn-action:hover { background: #f0f0f0; }
+        .btn-edit:hover { border-color: #1976d2; color: #1976d2; }
+        .btn-delete:hover { border-color: #d32f2f; color: #d32f2f; }
+        
+        .btn-add {
+            background: #d4af37;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn-add:hover { background: #b5a87f; }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-wallet"></i><br>
+                Smart Expense Tracker
+            </div>
+            <a href="{% url 'dashboard' %}" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="{% url 'add_expense' %}"><i class="fa-solid fa-plus-circle"></i> Add Transaction</a>
+            <a href="{% url 'export_expenses' %}"><i class="fa-solid fa-file-csv"></i> Download Report</a>
+            <a href="{% url 'logout' %}" class="logout"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <div class="main-content">
+            <div class="header-section">
+                <h1>Financial Overview</h1>
+                <form method="get">
+                    <select name="filter" class="filter-select" onchange="this.form.submit()">
+                        <option value="all" {% if filter_by == 'all' %}selected{% endif %}>All Time</option>
+                        <option value="today" {% if filter_by == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if filter_by == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if filter_by == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="summary-cards">
+                <div class="card card-balance">
+                    <div class="card-title">Remaining Balance</div>
+                    <div class="card-amount">₹{{ balance|default:"0.00" }}</div>
+                </div>
+                <div class="card card-income">
+                    <div class="card-title">Total Income</div>
+                    <div class="card-amount">+₹{{ total_income|default:"0.00" }}</div>
+                </div>
+                <div class="card card-expense">
+                    <div class="card-title">Total Expenses</div>
+                    <div class="card-amount">-₹{{ total_expense|default:"0.00" }}</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3 class="chart-title">Income vs Expense</h3>
+                    <canvas id="typeChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3 class="chart-title">Expenses by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="chart-title" style="margin:0; border:none; padding:0;">Recent Transactions</h3>
+                    <a href="{% url 'add_expense' %}" class="btn-add"><i class="fa-solid fa-plus"></i> New</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in expenses %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>
+                                {% if item.transaction_type == 'Income' %}
+                                    <span class="badge badge-income">Income</span>
+                                {% else %}
+                                    <span class="badge badge-expense">Expense</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.category }}</td>
+                            <td>
+                                {% if item.transaction_type == 'Income' %}
+                                    <strong style="color:#2e7d32;">+₹{{ item.amount }}</strong>
+                                {% else %}
+                                    <strong style="color:#c62828;">-₹{{ item.amount }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_expense' item.id %}" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i></a>
+                                <a href="{% url 'delete_expense' item.id %}" class="btn-action btn-delete"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;">No transactions found for this period.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pie Chart - Income vs Expense
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ type_labels|safe }},
+                datasets: [{
+                    data: {{ type_totals|safe }},
+                    backgroundColor: ['#2e7d32', '#c62828'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '60%',
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Bar Chart - Categories
+        const catCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ categories|safe }},
+                datasets: [{
+                    label: 'Amount Spent',
+                    data: {{ category_totals|safe }},
+                    backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                    borderColor: '#b5a87f',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+</body>
+</html>

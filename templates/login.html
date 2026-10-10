@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        .login-wrapper {
+            position: relative;
+            width: 95vw;
+            max-width: 1400px;
+            aspect-ratio: 16/9;
+            background-image: url("{% static 'img/clean_bg.jpg' %}");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-radius: 12px;
+        }
+
+        /* The form positioned perfectly within the blank decorative frame */
+        .form-container {
+            position: absolute;
+            top: 20%;
+            left: 42%;
+            width: 36%;
+            height: 60%;
+            padding: 2% 4%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            /* background-color: rgba(255,0,0,0.2); Uncomment to test position */
+        }
+
+        /* Form Styling */
+        .logo-emblem {
+            text-align: center;
+            margin-bottom: 2%;
+            color: #b5a87f;
+            font-size: 2.5vw;
+            max-font-size: 40px;
+        }
+
+        .form-title {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8vw;
+            color: #1b1b1b;
+            margin: 0 0 1% 0;
+            font-weight: 700;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            font-size: 0.8vw;
+            color: #444;
+            margin-bottom: 4%;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 3%;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 1vw;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 3% 4% 3% 12%;
+            background-color: transparent;
+            border: 1px solid rgba(181, 168, 127, 0.8);
+            border-radius: 6px;
+            font-size: 1vw;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #10331b;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8vw;
+            color: #444;
+            margin-bottom: 4%;
+        }
+        
+        .options-row label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .options-row a {
+            color: #444;
+            text-decoration: none;
+        }
+
+        .options-row a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 3%;
+            background-color: #0d3b1f; /* Dark Green */
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1vw;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(13, 59, 31, 0.4);
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            background-color: #082915;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 4% 0;
+            color: #666;
+            font-size: 0.8vw;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(181, 168, 127, 0.5);
+        }
+
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
+
+        .btn-google {
+            width: 100%;
+            padding: 3%;
+            background-color: transparent;
+            color: #333;
+            border: 1px solid rgba(181, 168, 127, 0.8);
+            border-radius: 6px;
+            font-size: 0.9vw;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-google:hover {
+            background-color: rgba(255,255,255,0.4);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 4%;
+            font-size: 0.8vw;
+            color: #555;
+        }
+
+        .signup-link a {
+            color: #0d3b1f;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .messages {
+            text-align: center;
+            color: #d93025;
+            font-size: 0.9vw;
+            margin-bottom: 2%;
+        }
+
+        /* Ensuring icons scale decently */
+        @media (min-width: 1200px) {
+            .form-title { font-size: 22px; }
+            .form-subtitle { font-size: 11px; }
+            .input-group input { font-size: 14px; padding: 10px 15px 10px 40px; }
+            .input-group i { font-size: 14px; }
+            .options-row { font-size: 11px; }
+            .btn-submit { font-size: 14px; padding: 12px; }
+            .btn-google { font-size: 13px; padding: 10px; }
+            .signup-link { font-size: 11px; }
+            .logo-emblem { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="form-container">
+            <div class="logo-emblem">
+                <i class="fa-solid fa-rupee-sign" style="border: 2px solid #b5a87f; border-radius: 50%; padding: 5px 15px; font-size: inherit;"></i>
+            </div>
+            <h2 class="form-title">Smart Expense Tracker</h2>
+            <p class="form-subtitle">Track Today, Save for a Better Tomorrow</p>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="text" name="username" placeholder="Email / Username" required autocomplete="username">
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <i class="fa-regular fa-eye-slash" style="left: auto; right: 15px; cursor: pointer;"></i>
+                </div>
+
+                <div class="options-row">
+                    <label>
+                        <input type="checkbox" checked> Remember me
+                    </label>
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-submit">Sign In <i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <button type="button" class="btn-google">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="16" alt="Google"> Continue with Google
+            </button>
+
+            <div class="signup-link">
+                Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

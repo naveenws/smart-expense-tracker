@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ action }} Transaction - Smart Expense Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+        body { 
+            background-color: #1a1a1a; 
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 600px;
+            background-image: url("{% static 'img/clean_bg.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 5px solid #0d3b1f;
+            position: relative;
+        }
+
+        .form-content {
+            background-color: rgba(244, 241, 225, 0.95);
+            padding: 40px;
+            border-radius: 8px;
+            margin: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: #0d3b1f;
+            text-align: center;
+            margin-top: 0;
+            border-bottom: 2px dashed #b5a87f;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #b5a87f;
+            border-radius: 6px;
+            background-color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #0d3b1f;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-cancel {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn-save {
+            background-color: #0d3b1f;
+            color: #fff;
+        }
+
+        .btn-save:hover {
+            background-color: #082915;
+        }
+        
+        /* Cleanup django form display */
+        form p { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="form-wrapper">
+        <div class="form-content">
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> {{ action }} Transaction</h2>
+            <form method="post">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: #c62828; font-size: 12px; margin-top: 5px;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="actions">
+                    <a href="{% url 'dashboard' %}" class="btn btn-cancel">Cancel</a>
+                    <button type="submit" class="btn btn-save">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('id_transaction_type');
+            const categorySelect = document.getElementById('id_category');
+            
+            const expenseCategories = ['Food', 'Travel', 'Entertainment', 'Utilities', 'Health', 'Shopping', 'Other'];
+            const incomeCategories = ['Salary', 'Bonus', 'Investment', 'Other'];
+            
+            function updateCategories() {
+                const selectedType = typeSelect.value;
+                const currentCategory = categorySelect.value;
+                
+                // Hide all options first
+                Array.from(categorySelect.options).forEach(option => {
+                    option.style.display = 'none';
+                });
+                
+                let categoriesToShow = selectedType === 'Income' ? incomeCategories : expenseCategories;
+                let foundMatch = false;
+
+                // Show only relevant options
+                Array.from(categorySelect.options).forEach(option => {
+                    if (categoriesToShow.includes(option.value) || option.value === '') {
+                        option.style.display = '';
+                        if (option.value === currentCategory) {
+                            foundMatch = true;
+                        }
+                    }
+                });
+
+                // If current selection is hidden, select the first visible one
+                if (!foundMatch && categorySelect.options.length > 0) {
+                    for (let i = 0; i < categorySelect.options.length; i++) {
+                        if (categorySelect.options[i].style.display !== 'none') {
+                            categorySelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (typeSelect && categorySelect) {
+                typeSelect.addEventListener('change', updateCategories);
+                updateCategories(); // Run once on load
+            }
+        });
+    </script>
+</body>
+</html>
