@@ -1,0 +1,19 @@
+databases:
+  - name: smart-expense-db
+    databaseName: smartexpensedb
+    user: smartexpenseuser
+    plan: free
+
+services:
+  - type: web
+    name: smart-expense-tracker
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn expense_tracker.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-expense-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.10.0
